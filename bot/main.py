@@ -19,45 +19,76 @@ logger = logging.getLogger(__name__)
 
 """
 def whatsapp_webhook(request):
-  message = request.values.get('Body', "").lower()
+  message = request.values.get("Body", "").lower()
   twilio_response = MessagingResponse()
   msg = twilio_response.message()
-  if message in restaurants:
+
+  if message in restaurants.keys():
     resp = requests.get(restaurants[message])
     if not (200 <= resp.status_code <= 299):
         logger.error(
-            f'Failed to retrieve data for the following restaurant - {message}. Here is a more verbose reason {resp.reason}'
+            f"Failed to retrieve data for the following restaurant - {message}. Here is a more verbose reason {resp.reason}"
         )
         msg.body(
-            'Sorry we could not process your request. Please try again or check a different restaurant'
+            "Sorry we could not process your request. Please try again or check a different restaurant. You can type \"help\" for available commands."
         )
     else:
-        data = resp.json()[0]
-        logger.info(data)
+        name = resp.json()["RestaurantName"]
+        time = resp.json()["MenusForDays"][0]["LunchTime"]
+        menus = resp.json()["MenusForDays"][0]["SetMenus"]
+        logger.info(menus)
+        ret = f"Todays lunch menu for {name}: \n "
+        ret += (f"Lunchtime at {time}, \n")
+        for food in menus:
+          logger.info(food)
+          tempStr = ""
+          for comp in food["Components"]:
+            tempStr += f"{comp} "
+          tempName = food["Name"]
+          ret += (f"{tempName}: {tempStr}, \n")
         msg.body(
-          f"Found a match with {message}. Unfortunately service is still in progress so this is all you'll get now."
+          ret
         )
   else:
     logger.error(
-      f'Failed to retrieve data for the following restaurant - {message}. No match in Dictionary.'
+      f"Failed to retrieve data for the following restaurant - {message}. No match in Dictionary."
     )
     msg.body(
-      'Sorry we could not process your request. Please try again or check a different restaurant'
+      "Sorry we could not process your request. Please try again or check a different restaurant"
     )
+    
   return str(twilio_response)
 
+#Dict of semmas' json menus in finnish
 restaurants = {
-  'piato': 'https://www.semma.fi/modules/json/json/Index?costNumber=1408&language=fi',
-  'maija': 'https://www.semma.fi/modules/json/json/Index?costNumber=1402&language=fi',
-  'lozzi':'https://www.semma.fi/modules/json/json/Index?costNumber=1401&language=fi',
-  'belvedere':'https://www.semma.fi/modules/json/json/Index?costNumber=1404&language=fi',
-  'syke':'https://www.semma.fi/modules/json/json/Index?costNumber=1405&language=fi',
-  'tilia':'https://www.semma.fi/modules/json/json/Index?costNumber=1413&language=fi',
-  'uno':'https://www.semma.fi/modules/json/json/Index?costNumber=1414&language=fi',
-  'ylisto':'https://www.semma.fi/modules/json/json/Index?costNumber=1403&language=fi',
-  'kvarkki':'https://www.semma.fi/modules/json/json/Index?costNumber=140301&language=fi',
-  'rentukka':'https://www.semma.fi/modules/json/json/Index?costNumber=1416&language=fi',
-  'novelli':'https://www.semma.fi/modules/json/json/Index?costNumber=1409&language=fi',
-  'fiilu':'https://www.foodandco.fi/modules/json/json/Index?costNumber=3364&language=fi',
-  'taide':'https://www.foodandco.fi/modules/json/json/Index?costNumber=0301&language=fi'
+  "piato": "https://www.semma.fi/modules/json/json/Index?costNumber=1408&language=fi",
+  "maija": "https://www.semma.fi/modules/json/json/Index?costNumber=1402&language=fi",
+  "lozzi":"https://www.semma.fi/modules/json/json/Index?costNumber=1401&language=fi",
+  "belvedere":"https://www.semma.fi/modules/json/json/Index?costNumber=1404&language=fi",
+  "syke":"https://www.semma.fi/modules/json/json/Index?costNumber=1405&language=fi",
+  "tilia":"https://www.semma.fi/modules/json/json/Index?costNumber=1413&language=fi",
+  "uno":"https://www.semma.fi/modules/json/json/Index?costNumber=1414&language=fi",
+  "ylisto":"https://www.semma.fi/modules/json/json/Index?costNumber=1403&language=fi",
+  "kvarkki":"https://www.semma.fi/modules/json/json/Index?costNumber=140301&language=fi",
+  "rentukka":"https://www.semma.fi/modules/json/json/Index?costNumber=1416&language=fi",
+  "novelli":"https://www.semma.fi/modules/json/json/Index?costNumber=1409&language=fi",
+  "fiilu":"https://www.foodandco.fi/modules/json/json/Index?costNumber=3364&language=fi",
+  "taide":"https://www.foodandco.fi/modules/json/json/Index?costNumber=0301&language=fi"
+}
+
+#Dict of semmas' json menus in english
+restaurantsEn = {
+  "piato": "https://www.semma.fi/modules/json/json/Index?costNumber=1408&language=en",
+  "maija": "https://www.semma.fi/modules/json/json/Index?costNumber=1402&language=en",
+  "lozzi":"https://www.semma.fi/modules/json/json/Index?costNumber=1401&language=en",
+  "belvedere":"https://www.semma.fi/modules/json/json/Index?costNumber=1404&language=en",
+  "syke":"https://www.semma.fi/modules/json/json/Index?costNumber=1405&language=en",
+  "tilia":"https://www.semma.fi/modules/json/json/Index?costNumber=1413&language=en",
+  "uno":"https://www.semma.fi/modules/json/json/Index?costNumber=1414&language=en",
+  "ylisto":"https://www.semma.fi/modules/json/json/Index?costNumber=1403&language=en",
+  "kvarkki":"https://www.semma.fi/modules/json/json/Index?costNumber=140301&language=en",
+  "rentukka":"https://www.semma.fi/modules/json/json/Index?costNumber=1416&language=en",
+  "novelli":"https://www.semma.fi/modules/json/json/Index?costNumber=1409&language=en",
+  "fiilu":"https://www.foodandco.fi/modules/json/json/Index?costNumber=3364&language=en",
+  "taide":"https://www.foodandco.fi/modules/json/json/Index?costNumber=0301&language=en"
 }

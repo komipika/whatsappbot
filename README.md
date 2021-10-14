@@ -4,6 +4,3 @@ TIES4560 Course Week 6 demo showcasing serverless based cloud function implement
 
 To be deployed to Google cloud platform.
 
-
-
-
