@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
         The response text, or any set of values that can be turned into a
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
-
 """
 def whatsapp_webhook(request):
   message = request.values.get("Body", "").lower()
@@ -72,8 +71,8 @@ def getTodaysMenu(message):
         tempStr += f"{comp} "
       tempName = food["Name"]
       ret += (f"{tempName}: {tempStr}, \n")    
-    ret = ret.strip()
-    ret = ret[:-1]
+    tempret = ret.strip()
+    ret = tempret[:-1] #trim last "," off
     return ret
 
   
@@ -82,8 +81,8 @@ def getVegMenus():
   ret = "Todays vegetable options are: \n"
   for key in restaurants:
     ret += getVeg(restaurants[key])
-  ret = ret.strip()
-  ret = ret[:-1]
+  tempret = ret.strip()
+  ret = tempret[:-1] #trim last "," off
   return ret
 
 def getVeg(url):
@@ -121,8 +120,8 @@ def getSomeHelp():
   ret += "Available restaurants: \n"
   for key in restaurants:
     ret += f"{key}, \n"
-  ret = ret.strip()
-  ret = ret[:-1] #trim last "," off
+  tempret = ret.strip()
+  ret = tempret[:-1] #trim last "," off
   return ret
 
 #Dict of semmas' json menus in finnish
